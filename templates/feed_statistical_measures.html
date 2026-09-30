@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ .measure.Title }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="/static/styles/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <main class="feed">
+
+        <div class="feed-media">
+
+            <!-- ВИДЕО -->
+
+            <div class="video-placeholder">
+                <video
+                   class="feed-video"
+                   autoplay
+                   muted
+                   loop
+                   playsinline
+                >
+                   <source src="{{ .measure.VideoURL }}" type="video/mp4">
+                </video>
+            </div>
+
+
+            <!-- ФОРМУЛА + ВРЕМЯ РАСЧЁТА-->
+
+            <div class="feed-side-parameters">
+
+                <!-- ФОРМУЛА -->
+                <div class="side-parameter">
+
+                    <span class="side-label">
+                        Формула
+                    </span>
+
+                    <span class="side-value">
+                        {{ .measure.Formula }}
+                    </span>
+
+                </div>
+
+
+                <!-- ВРЕМЯ РАСЧЁТА -->
+                <div class="side-parameter">
+
+                    <span class="side-label">
+                        Время расчёта
+                    </span>
+
+                    <span class="side-value">
+                        {{ .measure.CalculationTime }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!--ЛАЙК + КНОПКА ДАЛЬШЕ -->
+
+            <div class="feed-actions">
+
+                <!-- ЛАЙК -->
+                <div class="like-block">
+
+                    <span class="heart">
+                        ♡
+                    </span>
+
+                    <span class="likes-count">
+                        {{ .measure.LikesCount }}
+                    </span>
+
+                </div>
+
+
+                <!-- СЛЕДУЮЩИЙ РАСЧЁТ -->
+                <a
+                    class="next-button"
+                    href="/feed-statistical-measures?id={{ .measure.ID }}&next=true"
+                    title="Следующий расчёт"
+                >
+                    ↓
+                </a>
+
+            </div>
+
+
+            <!-- НАЗВАНИЕ + ОПИСАНИЕ-->
+
+            <div class="feed-description">
+
+                <h1>
+                    {{ .measure.Title }}
+                </h1>
+
+
+                <!-- КОРОТКОЕ ОПИСАНИЕ -->
+                <p class="short-description">
+                    {{ .measure.Description }}
+                </p>
+
+
+                <!--БОЛЬШЕ / МЕНЬШЕ -->
+
+                <details class="description-details">
+
+                    <summary>
+
+                        <span class="more-text">
+                            Больше
+                        </span>
+
+                        <span class="less-text">
+                            Меньше
+                        </span>
+
+                    </summary>
+
+
+                    <!-- ПОЛНОЕ ОПИСАНИЕ -->
+                    <p>
+                        {{ .measure.FullDescription }}
+                    </p>
+
+                </details>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- НИЖНЯЯ НАВИГАЦИЯ-->
+
+    <nav class="bottom-nav">
+
+        <!-- ЛЕНТА -->
+        <a
+            class="nav-item active"
+            href="/feed-statistical-measures?id=1"
+        >
+            <span class="nav-icon">
+                ▤
+            </span>
+
+            <span>
+                Лента
+            </span>
+        </a>
+
+
+        <!-- ДОБАВИТЬ -->
+        <a
+            class="nav-item"
+            href="/add-statistical-measures"
+        >
+            <span class="nav-icon">
+                ＋
+            </span>
+
+            <span>
+                Добавить
+            </span>
+        </a>
+
+
+        <!-- ПЛИТКА -->
+        <a
+            class="nav-item"
+            href="/tiles-statistical-measures"
+        >
+            <span class="nav-icon">
+                ▦
+            </span>
+
+            <span>
+                Плитка
+            </span>
+        </a>
+
+    </nav>
+
+</div>
+
+</body>
+
+</html>

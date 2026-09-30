@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Добавить расчёт</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="/static/styles/style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <main class="add-page">
+
+        <div class="add-header">
+            <h1>Новый расчёт</h1>
+        </div>
+
+
+        <div class="add-form">
+
+            <!-- ФОТО -->
+            <label class="media-field"
+                   data-image-url="{{ .measure.ImageURL }}">
+
+                <input
+                    class="media-input"
+                    type="file"
+                    accept="image/*"
+                >
+
+                <span class="media-icon">＋</span>
+
+                <span class="media-title">
+                    Добавить фото
+                </span>
+
+            </label>
+
+
+            <!-- ВИДЕО -->
+            <label class="media-field"
+                   data-video-url="{{ .measure.VideoURL }}">
+
+                <input
+                    class="media-input"
+                    type="file"
+                    accept="video/*"
+                >
+
+                <span class="media-icon">＋</span>
+
+                <span class="media-title">
+                    Добавить видео
+                </span>
+
+            </label>
+
+
+            <!-- НАЗВАНИЕ -->
+            <div class="form-group">
+
+                <label for="title">
+                    Название
+                </label>
+
+                <input
+                    class="form-field"
+                    id="title"
+                    type="text"
+                    name="title"
+                    value="{{ .measure.Title }}"
+                >
+
+            </div>
+
+
+            <!-- ОПИСАНИЕ -->
+            <div class="form-group">
+
+                <label for="description">
+                    Описание расчёта
+                </label>
+
+                <textarea
+                  class="form-field form-field-large"
+                  id="description"
+                  name="description"
+                >{{ .measure.Description }}</textarea>
+
+            </div>
+
+
+            <!-- ФОРМУЛА -->
+            <div class="form-group">
+
+                <label for="formula">
+                    Формула
+                </label>
+
+                <input
+                    class="form-field"
+                    id="formula"
+                    type="text"
+                    name="formula"
+                    placeholder="Введите формулу"
+                >
+
+            </div>
+
+
+            <!-- ВРЕМЯ РАСЧЁТА -->
+            <div class="form-group">
+
+                <label for="calculation-time">
+                    Время расчёта
+                </label>
+
+                <input
+                    class="form-field"
+                    id="calculation-time"
+                    type="number"
+                    name="calculation-time"
+                    min="0"
+                    value="{{ .measure.CalculationTime }}"
+                >
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <nav class="bottom-nav">
+
+        <a class="nav-item" href="/feed-statistical-measures?id=1">
+            <span class="nav-icon">▤</span>
+            <span>Лента</span>
+        </a>
+
+        <a class="nav-item active" href="/add-statistical-measures">
+            <span class="nav-icon">＋</span>
+            <span>Добавить</span>
+        </a>
+
+        <a class="nav-item" href="/tiles-statistical-measures">
+            <span class="nav-icon">▦</span>
+            <span>Плитка</span>
+        </a>
+
+    </nav>
+
+</div>
+
+</body>
+
+</html>
