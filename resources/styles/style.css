@@ -596,3 +596,51 @@ textarea.form-field {
     object-fit: cover;
     object-position: center top;
 }
+
+/* ПРЕВЬЮ ФОТО И ВИДЕО НА СТРАНИЦЕ "ДОБАВИТЬ" */
+
+.media-field {
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    background-color: #FFFFFF;
+    border: 1px solid #D2DCFF;
+    border-radius: 6px;
+    cursor: default;
+}
+
+.media-preview {
+    display: block;
+    width: 100%;
+    height: 190px;
+    object-fit: contain;
+    object-position: center;
+    background-color: #F7F9FF;
+}
+
+.media-select {
+    width: 100%;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 14px;
+    border-top: 1px solid #D2DCFF;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.media-select:hover {
+    background-color: #F7F9FF;
+}
+
+.media-select .media-icon {
+    font-size: 21px;
+    line-height: 21px;
+}
+
+.media-select .media-title {
+    margin-top: 0;
+    font-size: 13px;
+}

@@ -32,41 +32,63 @@
         <div class="add-form">
 
             <!-- ФОТО -->
-            <label class="media-field"
-                   data-image-url="{{ .measure.ImageURL }}">
+            <div class="media-field">
 
-                <input
-                    class="media-input"
-                    type="file"
-                    accept="image/*"
+                <img
+                    class="media-preview"
+                    src="{{ .measure.ImageURL }}"
+                    alt="Фото расчёта"
                 >
 
-                <span class="media-icon">＋</span>
+                <label class="media-select">
 
-                <span class="media-title">
-                    Добавить фото
-                </span>
+                    <input
+                        class="media-input"
+                        type="file"
+                        accept="image/*"
+                    >
 
-            </label>
+                    <span class="media-icon">＋</span>
+
+                    <span class="media-title">
+                        Выбрать фото
+                    </span>
+
+                </label>
+
+            </div>
 
 
             <!-- ВИДЕО -->
-            <label class="media-field"
-                   data-video-url="{{ .measure.VideoURL }}">
+            <div class="media-field">
 
-                <input
-                    class="media-input"
-                    type="file"
-                    accept="video/*"
+                <video
+                    class="media-preview"
+                    controls
                 >
+                    <source
+                        src="{{ .measure.VideoURL }}"
+                        type="video/mp4"
+                    >
+                </video>
 
-                <span class="media-icon">＋</span>
+                <label class="media-select">
 
-                <span class="media-title">
-                    Добавить видео
-                </span>
+                    <input
+                        class="media-input"
+                        type="file"
+                        accept="video/*"
+                    >
 
-            </label>
+                    <span class="media-icon">＋</span>
+
+                    <span class="media-title">
+                        Выбрать видео
+                    </span>
+
+                </label>
+
+            </div>
 
 
             <!-- НАЗВАНИЕ -->
@@ -95,9 +117,9 @@
                 </label>
 
                 <textarea
-                  class="form-field form-field-large"
-                  id="description"
-                  name="description"
+                    class="form-field form-field-large"
+                    id="description"
+                    name="description"
                 >{{ .measure.Description }}</textarea>
 
             </div>
@@ -157,7 +179,7 @@
             <span>Добавить</span>
         </a>
 
-        <a class="nav-item" href="/tiles-statistical-measures">
+        <a class="nav-item" href="/statistical-measures">
             <span class="nav-icon">▦</span>
             <span>Плитка</span>
         </a>

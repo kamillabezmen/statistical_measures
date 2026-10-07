@@ -74,16 +74,13 @@
                 href="/feed-statistical-measures?id={{ .ID }}"
             >
 
-                <!--
-                    Пока заглушка.
-                    Позже здесь будет изображение из MinIO.
-                -->
                 <div class="card-image">
                     <img
-                       src="{{ .ImageURL }}"
-                       alt="{{ .Title }}"
-                       class="tile-image"
-                       loading="lazy"
+                        src="{{ .ImageURL }}"
+                        alt="{{ .Title }}"
+                        class="tile-image"
+                        loading="lazy"
+                        onerror="this.onerror=null; this.src='/static/images/default-image.png';"
                     >
                 </div>
 
@@ -155,7 +152,7 @@
 
         <a
             class="nav-item active"
-            href="/tiles-statistical-measures"
+            href="/statistical-measures"
         >
             <span class="nav-icon">▦</span>
             <span>Плитка</span>

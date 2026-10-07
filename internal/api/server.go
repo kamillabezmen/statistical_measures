@@ -34,7 +34,7 @@ func StartServer() {
 	// Страница добавления
 	r.GET("/add-statistical-measures", h.Add)
     // Страница плитки
-	r.GET("/tiles-statistical-measures", h.Tiles)
+	r.GET("/statistical-measures", h.Tiles)
 
 	// Запускаем сервер на localhost:8080
 	r.Run()
