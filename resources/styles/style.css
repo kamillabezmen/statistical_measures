@@ -1,4 +1,4 @@
-/*ОБЩИЕ НАСТРОЙКИ*/
+/*общие настройки*/
 
 * {
     box-sizing: border-box;
@@ -17,7 +17,7 @@ body {
 }
 
 
-/*МОБИЛЬНОЕ ПРИЛОЖЕНИЕ*/
+/*мобильное приложение*/
 
 .app {
     width: 100%;
@@ -30,7 +30,7 @@ body {
 }
 
 
-/*ЛЕНТА */
+/*лента */
 
 .feed {
     width: 100%;
@@ -236,7 +236,7 @@ body {
 }
 
 
-/*НИЖНЯЯ НАВИГАЦИЯ*/
+/*нижняя навигация*/
 
 .bottom-nav {
     position: fixed;
@@ -277,7 +277,7 @@ body {
 }
 
 
-/* СТРАНИЦА "ДОБАВИТЬ" */
+/* страница добавить */
 
 .add-page {
     width: 100%;
@@ -389,7 +389,7 @@ textarea.form-field {
 }
 
 
-/*СТРАНИЦА "ПЛИТКА"*/
+/*страница плитка*/
 
 .tiles-page {
     width: 100%;
@@ -556,7 +556,7 @@ textarea.form-field {
 }
 
 
-/* ЛЕНТА*/
+/* лента*/
 
 .feed-video {
     position: absolute;
@@ -587,7 +587,7 @@ textarea.form-field {
 }
 
 
-/*СТРАНИЦА "ПЛИТКА"*/
+/*страница плитка*/
 
 .tile-image {
     display: block;
@@ -597,7 +597,7 @@ textarea.form-field {
     object-position: center top;
 }
 
-/* ПРЕВЬЮ ФОТО И ВИДЕО НА СТРАНИЦЕ "ДОБАВИТЬ" */
+/* превью фото и видео на странице добавить */
 
 .media-field {
     width: 100%;
@@ -643,4 +643,69 @@ textarea.form-field {
 .media-select .media-title {
     margin-top: 0;
     font-size: 13px;
+}
+
+/* кнопка удаления */
+
+.measure-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.measure-card > a {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.measure-card .card-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Время расчёта прижимаем вниз текстовой части */
+.measure-card .card-time {
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+/* Одинаковая зона под кнопку у каждой карточки */
+.delete-form {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 12px 12px;
+    margin: 0;
+}
+
+.delete-form .delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto !important;
+    min-width: 0 !important;
+    height: 30px;
+
+    margin: 0 !important;
+    padding: 0 12px !important;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #294CC2;
+    color: #ffffff;
+
+    font-family: "Poppins", sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.delete-form .delete-button:hover {
+    background: #1f3da0;
 }

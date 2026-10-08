@@ -24,17 +24,16 @@
 
     <main class="tiles-page">
 
-        <!-- ЗАГОЛОВОК -->
         <div class="tiles-header">
             <h1>Все расчёты</h1>
         </div>
 
 
-        <!-- ФИЛЬТР ПО ВРЕМЕНИ РАСЧЁТА -->
+        <!--поиск -->
         <form
             class="filter-form"
             method="GET"
-            action="/tiles-statistical-measures"
+            action="/statistical-measures"
         >
 
             <label for="time">
@@ -64,63 +63,86 @@
         </form>
 
 
-        <!-- ПЛИТКА РАСЧЁТОВ -->
+        <!-- плитка -->
         <div class="tiles-grid">
 
             {{ range .measures }}
 
-            <a
-                class="measure-card"
-                href="/feed-statistical-measures?id={{ .ID }}"
-            >
+            <div class="measure-card">
 
-                <div class="card-image">
-                    <img
-                        src="{{ .ImageURL }}"
-                        alt="{{ .Title }}"
-                        class="tile-image"
-                        loading="lazy"
-                        onerror="this.onerror=null; this.src='/static/images/default-image.png';"
-                    >
-                </div>
+                <a
+                    href="/feed-statistical-measures?id={{ .ID }}"
+                    style="text-decoration: none; color: inherit;"
+                >
 
+                    <div class="card-image">
 
-                <div class="card-content">
-
-                    <!-- ЛАЙКИ -->
-                    <div class="card-likes">
-
-                        <span class="card-heart">
-                            ♡
-                        </span>
-
-                        <span>
-                            {{ .LikesCount }}
-                        </span>
+                        <img
+                            src="{{ .ImageURL }}"
+                            alt="{{ .Title }}"
+                            class="tile-image"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='/static/images/default-image.png';"
+                        >
 
                     </div>
 
 
-                    <!-- НАЗВАНИЕ -->
-                    <h2>
-                        {{ .Title }}
-                    </h2>
+                    <div class="card-content">
+
+                        <div class="card-likes">
+
+                            <span class="card-heart">
+                                ♡
+                            </span>
+
+                            <span>
+                                {{ .LikesCount }}
+                            </span>
+
+                        </div>
 
 
-                    <!-- ОПИСАНИЕ -->
-                    <p class="card-description">
-                        {{ .Description }}
-                    </p>
+                        <h2>
+                            {{ .Title }}
+                        </h2>
 
 
-                    <!-- ВРЕМЯ РАСЧЁТА -->
-                    <div class="card-time">
-                        Время расчёта: {{ .CalculationTime }}
+                        <p class="card-description">
+                            {{ .Description }}
+                        </p>
+
+
+                        <div class="card-time">
+                            Время расчёта: {{ .CalculationTime }}
+                        </div>
+
                     </div>
 
-                </div>
+                </a>
 
-            </a>
+
+                <!-- логическое удаление -->
+                <form
+                   class="delete-form"
+                   method="POST"
+                   action="/delete-statistical-measures"
+                >
+                   <input
+                      type="hidden"
+                      name="id"
+                      value="{{ .ID }}"
+                   >
+
+                   <button
+                      class="delete-button"
+                      type="submit"
+                   >
+                        Удалить
+                   </button>
+                </form>
+
+            </div>
 
             {{ end }}
 
@@ -129,7 +151,6 @@
     </main>
 
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
     <nav class="bottom-nav">
 
         <a
@@ -140,7 +161,6 @@
             <span>Лента</span>
         </a>
 
-
         <a
             class="nav-item"
             href="/add-statistical-measures"
@@ -148,7 +168,6 @@
             <span class="nav-icon">＋</span>
             <span>Добавить</span>
         </a>
-
 
         <a
             class="nav-item active"
@@ -163,5 +182,4 @@
 </div>
 
 </body>
-
 </html>

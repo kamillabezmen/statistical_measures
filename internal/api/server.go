@@ -14,30 +14,45 @@ func StartServer() {
 
 	r := gin.Default()
 
-	// Подключаем HTML-шаблоны
+	// HTML-шаблоны.
 	r.LoadHTMLGlob("templates/*")
 
+	// Статические файлы SSR-сервера:
 	r.Static("/static", "./resources")
 
-	// Создаём Repository
+	// Repository с подключением к PostgreSQL.
 	repo, err := repository.NewRepository()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Создаём Handler и передаём ему Repository
 	h := handler.NewHandler(repo)
 
-	// Страница ленты
+	// 3 GET запроса
+
+	// Лента.
 	r.GET("/feed-statistical-measures", h.Feed)
 
-	// Страница добавления
+	// Добавление / просмотр draft.
 	r.GET("/add-statistical-measures", h.Add)
-    // Страница плитки
+
+	// Плитка + поиск.
 	r.GET("/statistical-measures", h.Tiles)
 
-	// Запускаем сервер на localhost:8080
-	r.Run()
+	// 3 POST
 
-	log.Println("Server down")
+	// Создание draft через ORM.
+	r.POST("/add-statistical-measures", h.CreateDraft)
+
+	// Публикация draft через ORM.
+	r.POST("/publish-statistical-measures", h.PublishDraft)
+
+	// Логическое удаление обычным SQL UPDATE.
+	r.POST("/delete-statistical-measures", h.DeleteMeasure)
+
+	log.Println("Server running on http://localhost:8080")
+
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }

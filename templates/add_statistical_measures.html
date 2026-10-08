@@ -25,19 +25,41 @@
     <main class="add-page">
 
         <div class="add-header">
-            <h1>Новый расчёт</h1>
+            <h1>
+                {{ if .hasDraft }}
+                    Черновик расчёта
+                {{ else }}
+                    Новый расчёт
+                {{ end }}
+            </h1>
         </div>
 
 
-        <div class="add-form">
+        {{ if .hasDraft }}
 
-            <!-- ФОТО -->
+        <!-- черновик -->
+
+        <form
+            class="add-form"
+            method="POST"
+            action="/publish-statistical-measures"
+        >
+
+            <input
+                type="hidden"
+                name="id"
+                value="{{ .measure.ID }}"
+            >
+
+
+            <!--фото -->
             <div class="media-field">
 
                 <img
                     class="media-preview"
                     src="{{ .measure.ImageURL }}"
                     alt="Фото расчёта"
+                    onerror="this.onerror=null; this.src='/static/images/default-image.png';"
                 >
 
                 <label class="media-select">
@@ -59,7 +81,7 @@
             </div>
 
 
-            <!-- ВИДЕО -->
+            <!-- видео -->
             <div class="media-field">
 
                 <video
@@ -68,6 +90,167 @@
                 >
                     <source
                         src="{{ .measure.VideoURL }}"
+                        type="video/mp4"
+                        onerror="
+                            this.onerror=null;
+                            this.src='/static/videos/default-video.mp4';
+                            this.parentElement.load();
+                        "
+                    >
+                </video>
+
+                <label class="media-select">
+
+                    <input
+                        class="media-input"
+                        type="file"
+                        accept="video/*"
+                    >
+
+                    <span class="media-icon">＋</span>
+
+                    <span class="media-title">
+                        Выбрать видео
+                    </span>
+
+                </label>
+
+            </div>
+
+
+            <!-- название -->
+            <div class="form-group">
+
+                <label for="title">
+                    Название
+                </label>
+
+                <input
+                    class="form-field"
+                    id="title"
+                    type="text"
+                    value="{{ .measure.Title }}"
+                    readonly
+                >
+
+            </div>
+
+
+            <!--краткая инфа -->
+            <div class="form-group">
+
+                <label for="description">
+                    Описание расчёта
+                </label>
+
+                <textarea
+                    class="form-field form-field-large"
+                    id="description"
+                    name="description"
+                    required
+                >{{ .measure.Description }}</textarea>
+
+            </div>
+
+
+            <!-- первое тематическое поле -->
+            <div class="form-group">
+
+                <label for="formula">
+                    Формула
+                </label>
+
+                <input
+                    class="form-field"
+                    id="formula"
+                    type="text"
+                    name="formula"
+                    value="{{ .measure.Formula }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- второе тематическое поле -->
+            <div class="form-group">
+
+                <label for="calculation-time">
+                    Время расчёта
+                </label>
+
+                <input
+                    class="form-field"
+                    id="calculation-time"
+                    type="number"
+                    name="calculation_time"
+                    min="0"
+                    value="{{ .measure.CalculationTime }}"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                class="filter-button"
+                type="submit"
+            >
+                Опубликовать
+            </button>
+
+        </form>
+
+
+        {{ else }}
+
+
+        <!-- новый расчет -->
+
+        <form
+            class="add-form"
+            method="POST"
+            action="/add-statistical-measures"
+        >
+
+
+            <!-- default photo -->
+            <div class="media-field">
+
+                <img
+                    class="media-preview"
+                    src="/static/images/default-image.png"
+                    alt="Фото по умолчанию"
+                >
+
+                <label class="media-select">
+
+                    <input
+                        class="media-input"
+                        type="file"
+                        accept="image/*"
+                    >
+
+                    <span class="media-icon">＋</span>
+
+                    <span class="media-title">
+                        Выбрать фото
+                    </span>
+
+                </label>
+
+            </div>
+
+
+            <!-- default video -->
+            <div class="media-field">
+
+                <video
+                    class="media-preview"
+                    controls
+                >
+                    <source
+                        src="/static/videos/default-video.mp4"
                         type="video/mp4"
                     >
                 </video>
@@ -91,7 +274,7 @@
             </div>
 
 
-            <!-- НАЗВАНИЕ -->
+            <!-- название -->
             <div class="form-group">
 
                 <label for="title">
@@ -103,83 +286,50 @@
                     id="title"
                     type="text"
                     name="title"
-                    value="{{ .measure.Title }}"
+                    placeholder="Введите название"
+                    required
                 >
 
             </div>
 
 
-            <!-- ОПИСАНИЕ -->
-            <div class="form-group">
+            <button
+                class="filter-button"
+                type="submit"
+            >
+                Далее
+            </button>
 
-                <label for="description">
-                    Описание расчёта
-                </label>
+        </form>
 
-                <textarea
-                    class="form-field form-field-large"
-                    id="description"
-                    name="description"
-                >{{ .measure.Description }}</textarea>
-
-            </div>
-
-
-            <!-- ФОРМУЛА -->
-            <div class="form-group">
-
-                <label for="formula">
-                    Формула
-                </label>
-
-                <input
-                    class="form-field"
-                    id="formula"
-                    type="text"
-                    name="formula"
-                    placeholder="Введите формулу"
-                >
-
-            </div>
-
-
-            <!-- ВРЕМЯ РАСЧЁТА -->
-            <div class="form-group">
-
-                <label for="calculation-time">
-                    Время расчёта
-                </label>
-
-                <input
-                    class="form-field"
-                    id="calculation-time"
-                    type="number"
-                    name="calculation-time"
-                    min="0"
-                    value="{{ .measure.CalculationTime }}"
-                >
-
-            </div>
-
-        </div>
+        {{ end }}
 
     </main>
 
 
-    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <!-- нижняя навигация -->
     <nav class="bottom-nav">
 
-        <a class="nav-item" href="/feed-statistical-measures?id=1">
+        <a
+            class="nav-item"
+            href="/feed-statistical-measures?id=1"
+        >
             <span class="nav-icon">▤</span>
             <span>Лента</span>
         </a>
 
-        <a class="nav-item active" href="/add-statistical-measures">
+        <a
+            class="nav-item active"
+            href="/add-statistical-measures"
+        >
             <span class="nav-icon">＋</span>
             <span>Добавить</span>
         </a>
 
-        <a class="nav-item" href="/statistical-measures">
+        <a
+            class="nav-item"
+            href="/statistical-measures"
+        >
             <span class="nav-icon">▦</span>
             <span>Плитка</span>
         </a>
@@ -189,5 +339,4 @@
 </div>
 
 </body>
-
 </html>
