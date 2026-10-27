@@ -709,3 +709,38 @@ textarea.form-field {
 .delete-form .delete-button:hover {
     background: #1f3da0;
 }
+
+/* компактные карточки плитки */
+
+.card-image {
+    height: 155px;
+}
+
+.card-content {
+    padding: 6px 8px;
+}
+
+.card-likes {
+    margin-bottom: 2px;
+}
+
+.card-content h2 {
+    margin: 0;
+    font-size: 12px;
+    line-height: 15px;
+}
+
+.measure-card .card-time {
+    margin-top: 5px;
+    padding-top: 0;
+}
+
+.delete-form {
+    padding: 5px 8px 8px;
+}
+
+.delete-form .delete-button {
+    height: 28px;
+    padding: 0 10px !important;
+    font-size: 11px;
+}

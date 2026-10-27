@@ -18,7 +18,6 @@ type MeasureView struct {
 	ID              int
 	Title           string
 	Description     string
-	FullDescription string
 	Formula         string
 	CalculationTime int
 	LikesCount      int
@@ -35,17 +34,27 @@ func NewHandler(repository *repository.Repository) *Handler {
 
 // подготавливаем данные для HTML.
 func makeMeasureView(measure *repository.StatisticalMeasure) MeasureView {
-	return MeasureView{
-		ID:              measure.ID,
-		Title:           measure.Title,
-		Description:     measure.Description,
-		FullDescription: measure.FullDescription,
-		Formula:         measure.Formula,
-		CalculationTime: measure.CalculationTime,
-		LikesCount:      measure.LikesCount,
-		ImageURL:        measure.ImageURL,
-		VideoURL:        measure.VideoURL,
+	view := MeasureView{
+		ID:         measure.ID,
+		Title:      measure.Title,
+		LikesCount: measure.LikesCount,
+		ImageURL:   measure.ImageURL,
+		VideoURL:   measure.VideoURL,
 	}
+
+	if measure.Description != nil {
+		view.Description = *measure.Description
+	}
+
+	if measure.Formula != nil {
+		view.Formula = *measure.Formula
+	}
+
+	if measure.CalculationTime != nil {
+		view.CalculationTime = *measure.CalculationTime
+	}
+
+	return view
 }
 
 // Получаем один опубликованный расчёт.
@@ -76,7 +85,7 @@ func (h *Handler) Feed(ctx *gin.Context) {
 	})
 }
 
-// Если draft есть, показывает его, если draft нет-показывает пустую форму.
+// Если draft есть, показывает его, если draft нет — показывает пустую форму.
 func (h *Handler) Add(ctx *gin.Context) {
 	measure := h.repository.GetDraft()
 
@@ -144,7 +153,7 @@ func (h *Handler) CreateDraft(ctx *gin.Context) {
 }
 
 // PublishDraft — POST.
-// Заполняем тематические поля и публикуем draft.
+// Заполняем описание, тематические поля и публикуем draft.
 func (h *Handler) PublishDraft(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.PostForm("id"))
 	if err != nil {

@@ -12,10 +12,9 @@ import (
 type StatisticalMeasure struct {
 	ID              int        `gorm:"column:id;primaryKey"`
 	Title           string     `gorm:"column:title"`
-	Description     string     `gorm:"column:short_description"`
-	FullDescription string     `gorm:"column:full_description"`
-	Formula         string     `gorm:"column:formula"`
-	CalculationTime int        `gorm:"column:calculation_time"`
+	Description     *string    `gorm:"column:description"`
+	Formula         *string    `gorm:"column:formula"`
+	CalculationTime *int       `gorm:"column:calculation_time"`
 	Status          string     `gorm:"column:status"`
 	ImageURL        string     `gorm:"column:image_url"`
 	VideoURL        string     `gorm:"column:video_url"`
@@ -55,7 +54,7 @@ func NewRepository() (*Repository, error) {
 	}, nil
 }
 
-//возвращаем опубликованные расчёты через ORM
+// возвращаем опубликованные расчёты через ORM
 func (r *Repository) GetPublished() []StatisticalMeasure {
 	var measures []StatisticalMeasure
 
@@ -77,7 +76,7 @@ func (r *Repository) GetPublished() []StatisticalMeasure {
 	return measures
 }
 
-//выполняем поиск через ORM.
+// выполняем поиск через ORM.
 func (r *Repository) GetPublishedByCalculationTime(maxTime int) []StatisticalMeasure {
 	var measures []StatisticalMeasure
 
@@ -103,7 +102,7 @@ func (r *Repository) GetPublishedByCalculationTime(maxTime int) []StatisticalMea
 	return measures
 }
 
-//возвращаем черновик пользователя через ORM.
+// возвращаем черновик пользователя через ORM.
 func (r *Repository) GetDraft() *StatisticalMeasure {
 	var measure StatisticalMeasure
 
@@ -125,7 +124,7 @@ func (r *Repository) GetDraft() *StatisticalMeasure {
 }
 
 // возвращаем ровно один опубликованный расчёт через ORM.
-// Deleted и draft открыть через ленту нельзя
+// Deleted и draft открыть через ленту нельзя.
 func (r *Repository) GetByID(id int) *StatisticalMeasure {
 	var measure StatisticalMeasure
 
@@ -170,7 +169,7 @@ func (r *Repository) GetNext(id int) *StatisticalMeasure {
 	return &measure
 }
 
-// создаем черновик через ORM.
+// создаём черновик через ORM.
 func (r *Repository) CreateDraft(title string) error {
 	// У одного пользователя может быть максимум один draft.
 	var count int64
@@ -188,10 +187,9 @@ func (r *Repository) CreateDraft(title string) error {
 
 	measure := StatisticalMeasure{
 		Title:           title,
-		Description:     "",
-		FullDescription: "",
-		Formula:         "",
-		CalculationTime: 0,
+		Description:     nil,
+		Formula:         nil,
+		CalculationTime: nil,
 		Status:          "draft",
 		ImageURL:        "http://invalid.local/new-image.png",
 		VideoURL:        "http://invalid.local/new-video.mp4",
@@ -203,7 +201,7 @@ func (r *Repository) CreateDraft(title string) error {
 	return r.db.Create(&measure).Error
 }
 
-//заполняем черновик и публикует его через ORM.
+// заполняем черновик и публикуем его через ORM.
 func (r *Repository) PublishDraft(
 	id int,
 	description string,
@@ -216,12 +214,11 @@ func (r *Repository) PublishDraft(
 		Model(&StatisticalMeasure{}).
 		Where("id = ? AND creator_id = ? AND status = ?", id, 1, "draft").
 		Updates(map[string]interface{}{
-			"short_description": description,
-			"full_description":  description,
-			"formula":           formula,
-			"calculation_time":  calculationTime,
-			"status":            "published",
-			"formed_at":         now,
+			"description":      description,
+			"formula":          formula,
+			"calculation_time": calculationTime,
+			"status":           "published",
+			"formed_at":        now,
 		})
 
 	if result.Error != nil {
@@ -235,7 +232,7 @@ func (r *Repository) PublishDraft(
 	return nil
 }
 
-// логически удаляем расчёт
+// логически удаляем расчёт обычным SQL UPDATE.
 func (r *Repository) DeleteMeasure(id int) error {
 	result, err := r.sqlDB.Exec(
 		`UPDATE statistical_measures
@@ -260,7 +257,7 @@ func (r *Repository) DeleteMeasure(id int) error {
 	return nil
 }
 
-//получаем количество лайков из M:M таблицы.
+// получаем количество лайков из M:M таблицы.
 func (r *Repository) loadLikesCount(measure *StatisticalMeasure) {
 	var count int64
 

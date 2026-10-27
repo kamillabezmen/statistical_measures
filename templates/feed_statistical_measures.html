@@ -27,22 +27,25 @@
         <div class="feed-media">
 
             <!-- видео -->
-
             <div class="video-placeholder">
+
                 <video
-                   class="feed-video"
-                   autoplay
-                   muted
-                   loop
-                   playsinline
+                    class="feed-video"
+                    autoplay
+                    muted
+                    loop
+                    playsinline
                 >
-                   <source src="{{ .measure.VideoURL }}" type="video/mp4">
+                    <source
+                        src="{{ .measure.VideoURL }}"
+                        type="video/mp4"
+                    >
                 </video>
+
             </div>
 
 
-            <!-- формула и время расчета-->
-
+            <!-- формула и время расчёта -->
             <div class="feed-side-parameters">
 
                 <!-- формула -->
@@ -59,7 +62,7 @@
                 </div>
 
 
-                <!-- время расчета -->
+                <!-- время расчёта -->
                 <div class="side-parameter">
 
                     <span class="side-label">
@@ -75,8 +78,7 @@
             </div>
 
 
-            <!--лайк и дальше -->
-
+            <!-- лайк и следующий расчёт -->
             <div class="feed-actions">
 
                 <!-- лайк -->
@@ -93,7 +95,7 @@
                 </div>
 
 
-                <!-- след расчет -->
+                <!-- следующий расчёт -->
                 <a
                     class="next-button"
                     href="/feed-statistical-measures?id={{ .measure.ID }}&next=true"
@@ -105,44 +107,16 @@
             </div>
 
 
-            <!-- название и описание-->
-
+            <!-- название и одно описание -->
             <div class="feed-description">
 
                 <h1>
                     {{ .measure.Title }}
                 </h1>
 
-
-                <!-- короткое описание -->
                 <p class="short-description">
                     {{ .measure.Description }}
                 </p>
-
-
-                <!--больше меньше -->
-
-                <details class="description-details">
-
-                    <summary>
-
-                        <span class="more-text">
-                            Больше
-                        </span>
-
-                        <span class="less-text">
-                            Меньше
-                        </span>
-
-                    </summary>
-
-
-                    <!-- полное описание -->
-                    <p>
-                        {{ .measure.FullDescription }}
-                    </p>
-
-                </details>
 
             </div>
 
@@ -151,8 +125,7 @@
     </main>
 
 
-    <!-- нижняя навигация-->
-
+    <!-- нижняя навигация -->
     <nav class="bottom-nav">
 
         <!-- лента -->

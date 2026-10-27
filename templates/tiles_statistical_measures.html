@@ -29,7 +29,7 @@
         </div>
 
 
-        <!--поиск -->
+        <!-- поиск -->
         <form
             class="filter-form"
             method="GET"
@@ -108,11 +108,6 @@
                         </h2>
 
 
-                        <p class="card-description">
-                            {{ .Description }}
-                        </p>
-
-
                         <div class="card-time">
                             Время расчёта: {{ .CalculationTime }}
                         </div>
@@ -124,22 +119,24 @@
 
                 <!-- логическое удаление -->
                 <form
-                   class="delete-form"
-                   method="POST"
-                   action="/delete-statistical-measures"
+                    class="delete-form"
+                    method="POST"
+                    action="/delete-statistical-measures"
                 >
-                   <input
-                      type="hidden"
-                      name="id"
-                      value="{{ .ID }}"
-                   >
 
-                   <button
-                      class="delete-button"
-                      type="submit"
-                   >
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="{{ .ID }}"
+                    >
+
+                    <button
+                        class="delete-button"
+                        type="submit"
+                    >
                         Удалить
-                   </button>
+                    </button>
+
                 </form>
 
             </div>
@@ -151,6 +148,7 @@
     </main>
 
 
+    <!-- нижняя навигация -->
     <nav class="bottom-nav">
 
         <a
@@ -182,4 +180,5 @@
 </div>
 
 </body>
+
 </html>
