@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-
+    "statistical_measures/internal/app/singleton"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -106,8 +106,10 @@ func (r *Repository) GetPublishedByCalculationTime(maxTime int) []StatisticalMea
 func (r *Repository) GetDraft() *StatisticalMeasure {
 	var measure StatisticalMeasure
 
+    userID := singleton.GetCurrentUserID()
+
 	result := r.db.
-		Where("status = ? AND creator_id = ?", "draft", 1).
+		Where("status = ? AND creator_id = ?", "draft", userID).
 		First(&measure)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -171,12 +173,12 @@ func (r *Repository) GetNext(id int) *StatisticalMeasure {
 
 // создаём черновик через ORM.
 func (r *Repository) CreateDraft(title string) error {
-	// У одного пользователя может быть максимум один draft.
+	userID := singleton.GetCurrentUserID()
 	var count int64
 
 	if err := r.db.
 		Model(&StatisticalMeasure{}).
-		Where("creator_id = ? AND status = ?", 1, "draft").
+		Where("creator_id = ? AND status = ?", userID, "draft").
 		Count(&count).Error; err != nil {
 		return err
 	}
@@ -193,7 +195,7 @@ func (r *Repository) CreateDraft(title string) error {
 		Status:          "draft",
 		ImageURL:        "http://invalid.local/new-image.png",
 		VideoURL:        "http://invalid.local/new-video.mp4",
-		CreatorID:       1,
+		CreatorID:       userID,
 		CreatedAt:       time.Now(),
 		FormedAt:        nil,
 	}
@@ -208,11 +210,12 @@ func (r *Repository) PublishDraft(
 	formula string,
 	calculationTime int,
 ) error {
+	userID := singleton.GetCurrentUserID()
 	now := time.Now()
 
 	result := r.db.
 		Model(&StatisticalMeasure{}).
-		Where("id = ? AND creator_id = ? AND status = ?", id, 1, "draft").
+		Where("id = ? AND creator_id = ? AND status = ?", id, userID, "draft").
 		Updates(map[string]interface{}{
 			"description":      description,
 			"formula":          formula,

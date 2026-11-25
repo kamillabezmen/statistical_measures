@@ -50,6 +50,25 @@ func StartServer() {
 	// Логическое удаление обычным SQL UPDATE.
 	r.POST("/delete-statistical-measures", h.DeleteMeasure)
 
+// REST API для лабораторной работы № 3.
+     api := r.Group("/api")
+         {
+	// Домен статистических расчётов.
+	    api.GET("/statistical-measures", h.APIMeasures)
+	    api.GET("/statistical-measures/draft", h.APIDraft)
+	    api.GET("/statistical-measures/feed", h.APIFeed)
+
+	    api.POST("/statistical-measures", h.APICreateMeasure)
+	    api.PUT("/statistical-measures/:id/publish", h.APIPublishMeasure)
+	    api.DELETE("/statistical-measures/:id", h.APIDeleteMeasure)
+	    api.POST("/statistical-measures/:id/like", h.APILike)
+
+	// Домен пользователей.
+	    api.POST("/users/register", h.APIRegister)
+	    api.POST("/users/auth", h.APIAuth)
+	    api.POST("/users/logout", h.APILogout)
+         }
+
 	log.Println("Server running on http://localhost:8080")
 
 	if err := r.Run(":8080"); err != nil {
