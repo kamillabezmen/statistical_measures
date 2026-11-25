@@ -5,12 +5,14 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"statistical_measures/internal/app/auth"
 	"statistical_measures/internal/app/repository"
 )
 
 // объединяем контроллеры и доступ к репозиторию.
 type Handler struct {
 	repository *repository.Repository
+	auth       *auth.Service
 }
 
 // MeasureView содержит данные для HTML-шаблонов.
@@ -26,9 +28,10 @@ type MeasureView struct {
 }
 
 // NewHandler создаёт Handler.
-func NewHandler(repository *repository.Repository) *Handler {
+func NewHandler(repository *repository.Repository, authService *auth.Service) *Handler {
 	return &Handler{
 		repository: repository,
+		auth:       authService,
 	}
 }
 
@@ -87,7 +90,7 @@ func (h *Handler) Feed(ctx *gin.Context) {
 
 // Если draft есть, показывает его, если draft нет — показывает пустую форму.
 func (h *Handler) Add(ctx *gin.Context) {
-	measure := h.repository.GetDraft()
+	measure := h.repository.GetDraft(auth.CurrentUserID(ctx))
 
 	if measure == nil {
 		ctx.HTML(http.StatusOK, "add_statistical_measures.html", gin.H{
@@ -143,7 +146,7 @@ func (h *Handler) CreateDraft(ctx *gin.Context) {
 		return
 	}
 
-	err := h.repository.CreateDraft(title)
+	err := h.repository.CreateDraft(title, auth.CurrentUserID(ctx))
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
@@ -182,7 +185,7 @@ func (h *Handler) PublishDraft(ctx *gin.Context) {
 		id,
 		description,
 		formula,
-		calculationTime,
+		calculationTime, auth.CurrentUserID(ctx),
 	)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -201,7 +204,7 @@ func (h *Handler) DeleteMeasure(ctx *gin.Context) {
 		return
 	}
 
-	err = h.repository.DeleteMeasure(id)
+	err = h.repository.DeleteMeasure(id, auth.CurrentUserID(ctx))
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 		return

@@ -8,17 +8,31 @@ Backend реализован на Go с использованием Gin и GORM
 
 Все методы веб-сервиса имеют префикс `/api`.
 
-## Текущий пользователь
+## Лабораторная работа №4
 
-В лабораторной работе №3 авторизация ещё не реализована.
+Авторизация: JWT (HS256), аутентификация по email и паролю, bcrypt для хранения паролей, Redis для blacklist. Текущий пользователь определяется из проверенного JWT, а не из singleton. Гость может получить опубликованные меры и ленту. Создатель может создавать и публиковать свои черновики, удалять свои опубликованные меры, ставить и снимать лайки. Регистрация и аутентификация открыты гостю. Запрещённые операции возвращают 401/403. Для публичных GET недействительный или отсутствующий токен означает гостя.
 
-Текущий пользователь задаётся через singleton:
+### Запуск (Windows CMD, из корня проекта)
 
-`currentUserID = 1`
+```bat
+docker run -d --name statistical-redis -p 127.0.0.1:6379:6379 -v statistical-redis-data:/data redis:7-alpine redis-server --appendonly yes
+```
 
-Получение текущего пользователя выполняется функцией:
+При повторном запуске существующего контейнера: `docker start statistical-redis`. PostgreSQL, Adminer и MinIO должны быть запущены как в ЛР3.
 
-`singleton.GetCurrentUserID()`.
+```bat
+go get github.com/golang-jwt/jwt/v5@v5.2.2 github.com/redis/go-redis/v9@v9.7.3 github.com/swaggo/swag@v1.16.4 github.com/swaggo/gin-swagger@v1.6.0 github.com/swaggo/files@v1.0.1
+go run github.com/swaggo/swag/cmd/swag@v1.16.4 init -g cmd/statistical_measures/main.go --parseInternal
+go mod tidy
+go test ./...
+go run ./cmd/statistical_measures
+```
+
+Swagger UI: http://localhost:8080/swagger/index.html. Нажмите Authorize и введите `Bearer <access_token>`. Для публичных GET персональные признаки можно проверить в Postman, передав JWT в Authorization. JWT действует 2 часа. Опционально задайте `JWT_SECRET` (не менее 32 байт), `REDIS_ADDR` (по умолчанию 127.0.0.1:6379) и `REDIS_PASSWORD` (если задан пароль Redis). Без `JWT_SECRET` сервер создаёт случайный ключ на время процесса; после перезапуска нужно получить новый токен. Не сохраняйте реальные пароли и токены в Git.
+
+Зарегистрируйте нового тестового пользователя: старые записи ЛР3 с незахешированными паролями не используются для входа. Пароли в ЛР4 хранятся как bcrypt-хеши. После logout токен нельзя использовать на защищённых маршрутах. Redis: `docker exec statistical-redis redis-cli KEYS "blacklist:*"`; значение ключа — ID пользователя, TTL — остаток срока токена.
+
+Старые HTML-маршруты ЛР1–2 сохранены, защищённые маршруты требуют JWT; интерфейс входа для SPA будет в следующих лабораторных.
 
 ---
 
@@ -157,7 +171,7 @@ ID черновика передавать не требуется.
 
 - `name`;
 - `email`;
-- `password`.
+- `password` (минимум 8 символов, максимум 72 байта).
 
 Email пользователя должен быть уникальным.
 
@@ -167,9 +181,7 @@ Email пользователя должен быть уникальным.
 
 **POST /api/users/auth**
 
-Заглушка.
-
-Аутентификация будет реализована в лабораторной работе №4.
+Принимает JSON `{"email":"user@example.com","password":"..."}`. При успехе возвращает `access_token`, `token_type` (Bearer), `expires_in` (секунды). Неверные учётные данные — 401.
 
 ---
 
@@ -177,9 +189,7 @@ Email пользователя должен быть уникальным.
 
 **POST /api/users/logout**
 
-Заглушка.
-
-Деавторизация будет реализована в лабораторной работе №4.
+Требует JWT в заголовке `Authorization: Bearer <access_token>`. Сохраняет ID токена в blacklist Redis до истечения срока действия.
 
 ---
 
@@ -212,7 +222,7 @@ Email пользователя должен быть уникальным.
 - `id` - идентификатор;
 - `name` - имя пользователя;
 - `email` - уникальный email;
-- `password` - пароль.
+- `password` - bcrypt-хеш пароля.
 
 ## user_statistical_measures_likes
 
@@ -250,3 +260,6 @@ Bucket:
 - MinIO
 - Docker
 - Postman
+- Redis
+- JWT (golang-jwt)
+- Swagger (swaggo)

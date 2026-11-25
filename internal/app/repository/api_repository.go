@@ -6,13 +6,16 @@ import (
 
 	"gorm.io/gorm"
 
-	"statistical_measures/internal/app/singleton"
+	"golang.org/x/crypto/bcrypt"
+	"strings"
 )
 
 var (
-	ErrDraftExists = errors.New("у пользователя уже есть черновик")
-	ErrNotFound    = errors.New("запись не найдена")
-	ErrInvalidLike = errors.New("значение лайка должно быть 0 или 1")
+	ErrDraftExists        = errors.New("у пользователя уже есть черновик")
+	ErrNotFound           = errors.New("запись не найдена")
+	ErrForbidden          = errors.New("нет доступа к чужой записи или недопустимый статус")
+	ErrInvalidCredentials = errors.New("неверный email или пароль")
+	ErrInvalidLike        = errors.New("значение лайка должно быть 0 или 1")
 )
 
 type APIStatisticalMeasure struct {
@@ -67,9 +70,8 @@ func (r *Repository) baseAPIQuery(userID int) *gorm.DB {
 
 // GET: список опубликованных расчётов с фильтром.
 func (r *Repository) GetAPIPublished(
-	calculationTime *int,
+	calculationTime *int, userID int,
 ) ([]APIStatisticalMeasure, error) {
-	userID := singleton.GetCurrentUserID()
 
 	var measures []APIStatisticalMeasure
 
@@ -91,8 +93,7 @@ func (r *Repository) GetAPIPublished(
 }
 
 // GET: черновик текущего пользователя без ID в запросе.
-func (r *Repository) GetAPIDraft() (*APIStatisticalMeasure, error) {
-	userID := singleton.GetCurrentUserID()
+func (r *Repository) GetAPIDraft(userID int) (*APIStatisticalMeasure, error) {
 
 	var measure APIStatisticalMeasure
 
@@ -118,9 +119,8 @@ func (r *Repository) GetAPIDraft() (*APIStatisticalMeasure, error) {
 // GET: лента. next=true возвращает следующую запись по ID.
 func (r *Repository) GetAPIFeed(
 	id *int,
-	next bool,
+	next bool, userID int,
 ) (*APIStatisticalMeasure, error) {
-	userID := singleton.GetCurrentUserID()
 
 	var measure APIStatisticalMeasure
 
@@ -151,48 +151,31 @@ func (r *Repository) GetAPIFeed(
 
 // POST: создаём черновик с уже загруженными файлами.
 func (r *Repository) CreateAPIDraft(
-	title, imageURL, videoURL string,
+	title, imageURL, videoURL string, userID int,
 ) (*StatisticalMeasure, error) {
-	userID := singleton.GetCurrentUserID()
+	if userID <= 0 {
+		return nil, ErrForbidden
+	}
 
-	var count int64
-
-	err := r.db.
-		Model(&StatisticalMeasure{}).
-		Where(
-			"creator_id = ? AND status = ?",
-			userID,
-			"draft",
-		).
-		Count(&count).
-		Error
-
+	var measure StatisticalMeasure
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		// One transaction at a time for the same creator.
+		if err := tx.Exec("SELECT pg_advisory_xact_lock(?)", int64(userID)).Error; err != nil {
+			return err
+		}
+		var count int64
+		if err := tx.Model(&StatisticalMeasure{}).Where("creator_id = ? AND status = ?", userID, "draft").Count(&count).Error; err != nil {
+			return err
+		}
+		if count > 0 {
+			return ErrDraftExists
+		}
+		measure = StatisticalMeasure{Title: title, Status: "draft", ImageURL: imageURL, VideoURL: videoURL, CreatorID: userID, CreatedAt: time.Now()}
+		return tx.Create(&measure).Error
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	if count > 0 {
-		return nil, ErrDraftExists
-	}
-
-	measure := StatisticalMeasure{
-		Title:           title,
-		Description:     nil,
-		Formula:         nil,
-		CalculationTime: nil,
-		Status:          "draft",
-		ImageURL:        imageURL,
-		VideoURL:        videoURL,
-		CreatorID:       userID,
-		CreatedAt:       time.Now(),
-		FormedAt:        nil,
-		LikesCount:      0,
-	}
-
-	if err := r.db.Create(&measure).Error; err != nil {
-		return nil, err
-	}
-
 	return &measure, nil
 }
 
@@ -201,9 +184,11 @@ func (r *Repository) PublishAPIDraft(
 	id int,
 	description *string,
 	formula *string,
-	calculationTime *int,
+	calculationTime *int, userID int,
 ) error {
-	userID := singleton.GetCurrentUserID()
+	if userID <= 0 {
+		return ErrForbidden
+	}
 	now := time.Now()
 
 	updates := map[string]interface{}{
@@ -238,15 +223,17 @@ func (r *Repository) PublishAPIDraft(
 	}
 
 	if result.RowsAffected == 0 {
-		return ErrNotFound
+		return ErrForbidden
 	}
 
 	return nil
 }
 
 // DELETE: логическое удаление через ORM.
-func (r *Repository) DeleteAPIMeasure(id int) error {
-	userID := singleton.GetCurrentUserID()
+func (r *Repository) DeleteAPIMeasure(id, userID int) error {
+	if userID <= 0 {
+		return ErrForbidden
+	}
 
 	result := r.db.Model(&StatisticalMeasure{}).
 		Where(
@@ -259,19 +246,20 @@ func (r *Repository) DeleteAPIMeasure(id int) error {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
-		return ErrNotFound
+		return ErrForbidden
 	}
 
 	return nil
 }
 
 // POST: value=1 ставит лайк, value=0 снимает.
-func (r *Repository) SetAPILike(id, value int) error {
+func (r *Repository) SetAPILike(id, value, userID int) error {
+	if userID <= 0 {
+		return ErrForbidden
+	}
 	if value != 0 && value != 1 {
 		return ErrInvalidLike
 	}
-
-	userID := singleton.GetCurrentUserID()
 
 	var count int64
 	err := r.db.Model(&StatisticalMeasure{}).
@@ -310,15 +298,31 @@ func (r *Repository) SetAPILike(id, value int) error {
 func (r *Repository) RegisterAPIUser(
 	name, email, password string,
 ) (*User, error) {
-	user := User{
-		Name:     name,
-		Email:    email,
-		Password: password,
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
 	}
+	user := User{Name: strings.TrimSpace(name), Email: strings.ToLower(strings.TrimSpace(email)), Password: string(hash)}
 
 	if err := r.db.Create(&user).Error; err != nil {
 		return nil, err
 	}
 
+	return &user, nil
+}
+
+// Authenticate verifies a registered user's bcrypt password hash.
+func (r *Repository) Authenticate(email, password string) (*User, error) {
+	var user User
+	err := r.db.Where("email = ?", strings.ToLower(strings.TrimSpace(email))).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrInvalidCredentials
+	}
+	if err != nil {
+		return nil, err
+	}
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+		return nil, ErrInvalidCredentials
+	}
 	return &user, nil
 }

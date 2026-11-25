@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"time"
-    "statistical_measures/internal/app/singleton"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -103,10 +103,8 @@ func (r *Repository) GetPublishedByCalculationTime(maxTime int) []StatisticalMea
 }
 
 // возвращаем черновик пользователя через ORM.
-func (r *Repository) GetDraft() *StatisticalMeasure {
+func (r *Repository) GetDraft(userID int) *StatisticalMeasure {
 	var measure StatisticalMeasure
-
-    userID := singleton.GetCurrentUserID()
 
 	result := r.db.
 		Where("status = ? AND creator_id = ?", "draft", userID).
@@ -172,76 +170,24 @@ func (r *Repository) GetNext(id int) *StatisticalMeasure {
 }
 
 // создаём черновик через ORM.
-func (r *Repository) CreateDraft(title string) error {
-	userID := singleton.GetCurrentUserID()
-	var count int64
-
-	if err := r.db.
-		Model(&StatisticalMeasure{}).
-		Where("creator_id = ? AND status = ?", userID, "draft").
-		Count(&count).Error; err != nil {
-		return err
-	}
-
-	if count > 0 {
-		return errors.New("у пользователя уже есть черновик")
-	}
-
-	measure := StatisticalMeasure{
-		Title:           title,
-		Description:     nil,
-		Formula:         nil,
-		CalculationTime: nil,
-		Status:          "draft",
-		ImageURL:        "http://invalid.local/new-image.png",
-		VideoURL:        "http://invalid.local/new-video.mp4",
-		CreatorID:       userID,
-		CreatedAt:       time.Now(),
-		FormedAt:        nil,
-	}
-
-	return r.db.Create(&measure).Error
+func (r *Repository) CreateDraft(title string, userID int) error {
+	_, err := r.CreateAPIDraft(title, "http://invalid.local/new-image.png", "http://invalid.local/new-video.mp4", userID)
+	return err
 }
 
 // заполняем черновик и публикуем его через ORM.
-func (r *Repository) PublishDraft(
-	id int,
-	description string,
-	formula string,
-	calculationTime int,
-) error {
-	userID := singleton.GetCurrentUserID()
-	now := time.Now()
+func (r *Repository) PublishDraft(id int, description, formula string, calculationTime, userID int) error {
+	return r.PublishAPIDraft(id, &description, &formula, &calculationTime, userID)
 
-	result := r.db.
-		Model(&StatisticalMeasure{}).
-		Where("id = ? AND creator_id = ? AND status = ?", id, userID, "draft").
-		Updates(map[string]interface{}{
-			"description":      description,
-			"formula":          formula,
-			"calculation_time": calculationTime,
-			"status":           "published",
-			"formed_at":        now,
-		})
-
-	if result.Error != nil {
-		return result.Error
-	}
-
-	if result.RowsAffected == 0 {
-		return errors.New("черновик не найден")
-	}
-
-	return nil
 }
 
 // логически удаляем расчёт обычным SQL UPDATE.
-func (r *Repository) DeleteMeasure(id int) error {
+func (r *Repository) DeleteMeasure(id, userID int) error {
 	result, err := r.sqlDB.Exec(
 		`UPDATE statistical_measures
 		 SET status = 'deleted'
-		 WHERE id = $1 AND status = 'published'`,
-		id,
+		 WHERE id = $1 AND status = 'published' AND creator_id = $2`,
+		id, userID,
 	)
 
 	if err != nil {
